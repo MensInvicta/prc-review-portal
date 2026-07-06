@@ -1,0 +1,301 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>PRC Direct — Content Review</title>
+<style>
+  :root{--ink:#0a0a0a;--paper:#f4f3ef;--red:#E1251B}
+  *{box-sizing:border-box}
+  body{margin:0;font-family:"SFMono-Regular",ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}
+  header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 28px;background:rgba(244,243,239,.62);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(0,0,0,.1);transition:background .25s,box-shadow .25s,border-color .25s}
+  header.scrolled{background:rgba(244,243,239,.82);border-bottom-color:rgba(0,0,0,.18);box-shadow:0 8px 28px rgba(0,0,0,.08)}
+  .lft{display:flex;align-items:center;gap:14px;min-width:0}
+  .logo{height:26px;width:auto;display:block}
+  .brand .kick{font-size:9px;letter-spacing:4px;text-transform:uppercase;opacity:.5;margin:0 0 3px}
+  .brand h1{margin:0;font-size:15px;font-weight:600;letter-spacing:-.2px}
+  .rgt{display:flex;align-items:center;gap:12px;flex-shrink:0}
+  .prog{font-size:9px;letter-spacing:1px;text-transform:uppercase;border:1px solid var(--ink);padding:5px 9px;white-space:nowrap}
+  .prog b{font-weight:700}
+  .name{font:inherit;font-size:11px;padding:6px 9px;border:1px solid var(--ink);background:var(--paper);color:var(--ink);width:190px;border-radius:0}
+  .name::placeholder{color:rgba(0,0,0,.4)}
+  .banner{max-width:1180px;margin:18px auto 0;padding:0 28px}
+  .banner .inr{border:1px solid var(--ink);padding:10px 14px;font-size:11px;line-height:1.5}
+  main{padding:24px 28px 80px;max-width:1180px;margin:0 auto}
+  .intro{font-size:11px;line-height:1.6;opacity:.7;max-width:760px;margin:0 0 6px}
+  .sync{font-size:9px;letter-spacing:1px;text-transform:uppercase;opacity:.45;margin:0 0 16px}
+  h2{font-size:11px;text-transform:uppercase;letter-spacing:3px;padding:0 0 9px;margin:20px 0 18px;border-bottom:1px solid var(--ink)}
+  .grid{column-width:300px;column-gap:16px}
+  .card{background:var(--paper);overflow:hidden;display:flex;flex-direction:column;border:1px solid var(--ink);margin:0 0 16px;break-inside:avoid;-webkit-column-break-inside:avoid}
+  .media{background:#e8e7e2;overflow:hidden;position:relative}
+  .media img,.media video{width:100%;height:auto;display:block}
+  .src{position:absolute;top:9px;left:9px;font-size:9px;font-weight:600;letter-spacing:1.5px;color:#fff;border:1px solid rgba(255,255,255,.55);padding:3px 7px;background:rgba(0,0,0,.4);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
+  .day{position:absolute;top:9px;right:9px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#fff;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.4);padding:3px 7px}
+  .carbadge{position:absolute;bottom:9px;left:9px;z-index:3;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#fff;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.4);padding:3px 7px}
+  .strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
+  .strip::-webkit-scrollbar{height:5px}
+  .strip::-webkit-scrollbar-thumb{background:rgba(0,0,0,.35)}
+  .slide{position:relative;flex:0 0 100%;scroll-snap-align:start}
+  .slide img{width:100%;height:auto;display:block}
+  .sn{position:absolute;bottom:9px;right:9px;font-size:9px;letter-spacing:1px;color:#fff;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.4);padding:2px 7px}
+  .cap{padding:11px 12px 4px;font-size:12px;font-weight:600;line-height:1.4}
+  .pil{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;opacity:.5;margin:0 0 5px}
+  .capx{padding:10px 12px 12px;font-size:10.5px;line-height:1.6;white-space:pre-wrap}
+  .capx .tags{display:block;margin-top:8px;opacity:.55}
+  .track{display:flex;align-items:center;gap:8px;padding:10px 12px;border-top:1px solid var(--ink);font-size:9px;letter-spacing:1px;text-transform:uppercase}
+  .track select{font:inherit;font-size:10px;letter-spacing:.5px;text-transform:uppercase;padding:6px 8px;border:1px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:0}
+  .stat{display:inline-flex;align-items:center;gap:6px;margin-left:auto;font-weight:700}
+  .sq{width:9px;height:9px;border:1px solid var(--ink);display:inline-block;flex-shrink:0}
+  .sq.s-approved{background:var(--ink)}
+  .sq.s-posted{background:var(--ink)}
+  .sq.s-changesrequested{background:var(--red);border-color:var(--red)}
+  .sq.s-scheduled{background:repeating-linear-gradient(45deg,var(--ink),var(--ink) 2px,transparent 2px,transparent 4px)}
+  .comments{border-top:1px dashed var(--ink);padding:11px 12px}
+  .comments h4{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;opacity:.5;margin:0 0 9px;font-weight:600}
+  .cmt{border:1px solid var(--ink);padding:7px 9px;margin-bottom:7px}
+  .cmt .ch{display:flex;justify-content:space-between;gap:8px;font-size:9px;letter-spacing:.5px;text-transform:uppercase;opacity:.6;margin-bottom:3px}
+  .cmt .cb{font-size:11px;line-height:1.5;white-space:pre-wrap}
+  .empty{font-size:10px;opacity:.5;margin-bottom:9px}
+  .cbox{display:flex;flex-direction:column;gap:8px}
+  .cbox textarea{font:inherit;font-size:10.5px;line-height:1.5;padding:8px 9px;border:1px solid var(--ink);background:var(--paper);color:var(--ink);resize:vertical;min-height:34px;border-radius:0}
+  .send{display:block;text-align:center;background:var(--paper);color:var(--ink);border:1px solid var(--ink);font:inherit;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:10px;cursor:pointer;transition:.15s}
+  .send:hover:not(:disabled){background:var(--ink);color:var(--paper)}
+  .send:disabled{opacity:.4;cursor:default}
+  a.open{display:block;text-align:center;background:var(--paper);color:var(--ink);text-decoration:none;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:11px;border-top:1px solid var(--ink);transition:.15s}
+  a.open:hover{background:var(--ink);color:var(--paper)}
+  footer{max-width:1180px;margin:0 auto;padding:0 28px 60px;font-size:10px;opacity:.5}
+  .who2{font-size:9px;letter-spacing:.3px;opacity:.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
+  .who2 a{color:var(--ink);opacity:.7;text-decoration:underline;cursor:pointer}
+  .gate{position:fixed;inset:0;z-index:200;background:var(--paper);display:flex;align-items:center;justify-content:center;padding:24px}
+  .gcard{width:100%;max-width:360px;border:1px solid var(--ink);padding:32px 26px;text-align:center}
+  .gcard .logo{height:30px;margin:0 auto 18px}
+  .gkick{font-size:9px;letter-spacing:4px;text-transform:uppercase;opacity:.5;margin:0 0 16px}
+  .gh{font-size:16px;font-weight:700;margin:0 0 6px;letter-spacing:-.2px}
+  .gp{font-size:11px;line-height:1.6;opacity:.7;margin:0 0 20px}
+  .ginput{width:100%;font:inherit;font-size:14px;padding:12px;border:1px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:0;margin:0 0 10px}
+  .ginput::placeholder{color:rgba(0,0,0,.4)}
+  .gbtn{width:100%;font:inherit;font-size:11px;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:13px;border:1px solid var(--ink);background:var(--ink);color:var(--paper);cursor:pointer}
+  .gbtn:active{opacity:.85}
+  .gerr{font-size:10.5px;color:var(--red);min-height:14px;margin:11px 0 0;letter-spacing:.3px}
+  body.locked{overflow:hidden}
+  .brief{border:1px solid var(--ink);padding:14px 16px;margin:0 0 20px}
+  .brief .bl{font-size:8.5px;letter-spacing:2px;text-transform:uppercase;opacity:.5;margin:0 0 7px;font-weight:600}
+  .brief p{margin:0;font-size:12px;line-height:1.65}
+  .brief b{font-weight:700}
+  @media (max-width:560px){
+    header{flex-wrap:wrap;gap:10px;padding:10px 16px}
+    .brand h1{font-size:13px}
+    .rgt{width:100%;justify-content:space-between}
+    main{padding:18px 16px 72px}
+    .grid{column-width:auto;column-count:1}
+    .banner{padding:0 16px}
+    footer{padding:0 16px 50px}
+    .gcard{padding:26px 20px}
+  }
+</style>
+</head>
+<body>
+<div id="gate" class="gate" style="display:none">
+  <div class="gcard">
+    <img class="logo" src="https://prcdirect.co.uk/media/logo/stores/1/prc_logo_683.png" alt="PRC Direct">
+    <p class="gkick">Content Review</p>
+    <h2 class="gh">Sign in to review</h2>
+    <p class="gp">Enter your PRC Direct email to view this week's posts.</p>
+    <input id="gemail" class="ginput" type="email" inputmode="email" autocomplete="email" placeholder="you@prcdirect.co.uk">
+    <button id="gbtn" class="gbtn">Continue</button>
+    <p id="gerr" class="gerr"></p>
+  </div>
+</div>
+<header id="top">
+  <div class="lft">
+    <img class="logo" src="https://prcdirect.co.uk/media/logo/stores/1/prc_logo_683.png" alt="PRC Direct">
+    <div class="brand"><p class="kick">Content Review · Opulent Creatives</p><h1>Week of 6–12 Jul</h1></div>
+  </div>
+  <div class="rgt">
+    <span class="who2" id="who2"></span>
+    <span class="prog" id="prog">—</span>
+  </div>
+</header>
+
+<div class="banner" id="banner" style="display:none"><div class="inr" id="bannerTxt"></div></div>
+
+<main>
+  <p class="intro">Preview this week's posts. For each, set a <b>status</b> and leave <b>comments</b> — everything saves live, so we see it straight away. Swipe the carousels to view every slide.</p>
+  <p class="sync" id="sync"></p>
+  <h2>This Week — W2 · 6–12 Jul (World Cup run-in)</h2>
+  <div class="brief">
+    <div class="bl">The brief</div>
+    <p><b>World Cup run-in.</b> The knockouts are live, so this week is about getting people match-ready — screens and sound sorted before kick-off. Five posts across the pillars, each dated and with a clear route back to PRC: Mon a hero TV spotlight, Tue the Sony last-chance promo, Wed an Insider setup guide, Fri Big Screen Deals, Sat a genuine Trustpilot review.</p>
+  </div>
+  <div class="grid" id="grid"></div>
+</main>
+<footer>PRC Direct content review portal · Opulent Creatives. Pre-publish previews for client approval — please don't share externally.</footer>
+
+<script type="module">
+import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm';
+
+/* ============================================================
+   PASTE YOUR SUPABASE KEYS HERE  (see setup steps in chat)
+   ============================================================ */
+const SUPABASE_URL      = 'https://akksnzixaijzloidsnfb.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_1RTrMeeD3ypo1PLXBWmJYA_EajYyYOf';
+/* ============================================================ */
+
+const STATUSES = ['Pending review','Approved','Changes requested','Scheduled','Posted'];
+const slug = s => 's-'+s.toLowerCase().replace(/[^a-z]/g,'');
+
+const POSTS = [
+  { id:'w2-spotlight', src:'CANVA', pillar:'Product Spotlight', day:'Mon 6 Jul',
+    title:'The final deserves a bigger screen',
+    media:{type:'img', url:'https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/b3ddaca0-1420-4419-be18-567fc1532f6e.png'},
+    canva:'https://www.canva.com/design/DAHOj0ttw3c/edit',
+    caption:`The final deserves a bigger screen. This Samsung 65" 4K OLED turns your front room into the best seat in the stadium — self-lit pixels for pure blacks and Neural Quantum 4K AI making every replay razor-sharp. £1,199 at PRC, in store and online. Get set up before kick-off.\n\nyour matchday, upgraded.`,
+    tags:'#PRCDirect #Samsung #OLED #WorldCup #Basildon' },
+  { id:'w2-sony', src:'CANVA', pillar:'Brand Promo', day:'Tue 7 Jul',
+    title:'Sony BRAVIA RGB — last chance (ends today)',
+    media:{type:'img', url:'https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/312d00d4-a813-440d-b2a8-e1ed30246286.png'},
+    canva:'https://www.canva.com/design/DAHOlh0NdzM/edit',
+    caption:`Last chance. Pre-order the new Sony BRAVIA RGB and claim up to £500 cashback before the offer ends today, 7 July. The future of colour — self-lit and dazzling. Pop into the Basildon showroom or reserve yours online before it's gone.\n\ndon't miss it, ends today.`,
+    tags:'#PRCDirect #Sony #BRAVIA #LastChance #Basildon' },
+  { id:'w2-insider', src:'CANVA', pillar:'PRC Insider', day:'Wed 8 Jul',
+    title:'Get your TV match-ready (carousel · 6 slides)',
+    media:{type:'img', url:'https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/6b7fe064-5d5d-4d6a-9731-98080461f2a7.png'},
+    slides:['https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/6b7fe064-5d5d-4d6a-9731-98080461f2a7.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/855f9dbb-f1c5-49f7-9dfb-a827af504096.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/b1065b12-8c06-4d3f-aa4c-b7cdbf81288d.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/7931198f-980c-4f07-af3c-3b761e5d2051.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/1168f6f0-a613-481d-98b8-d9d15ad3ac36.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/cb1b5f8c-3fbf-473f-8f1b-95203d1cbc12.png'],
+    canva:'https://www.canva.com/design/DAHOj5YjvTc/edit',
+    caption:`Get your telly match-ready before kick-off. We've broken down the four things that actually make football look and sound better at home — from the right size to the best picture settings. Swipe through, save it, send it to whoever's hosting. Ends on a shoppable line-up: 55" Crystal UHD £299 · 55" OLED £849 · HW-B650F soundbar £199 · 65" QLED £549.\n\nmatch-ready in four swipes.`,
+    tags:'#PRCDirect #MatchReady #TVSetup #WorldCup #Basildon' },
+  { id:'w2-sales', src:'CANVA', pillar:'Sales', day:'Fri 10 Jul',
+    title:'Big Screen Deals (carousel · 5 slides, £259–£849)',
+    media:{type:'img', url:'https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/9b3c3b72-8166-4679-82c7-16e12a2d0b95.png'},
+    slides:['https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/9b3c3b72-8166-4679-82c7-16e12a2d0b95.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/b7faad8b-8171-4afa-a253-2dddefe94e05.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/da544bc3-6020-4fed-99d9-23add3e85128.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/133aeea8-df03-4067-ac68-82aedeea2144.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/2638dd5e-707d-47f5-8c3f-2dcad4694fff.png'],
+    canva:'https://www.canva.com/design/DAHOjuEuwN0/edit',
+    caption:`Match-ready big screen deals are on. From a 50" 4K at £259 up to a 65" OLED, there's a screen for every room and every budget — all ready before the quarter-finals. Swipe through, then pop into the Basildon showroom or shop online.\n\nbig-screen football, sorted.`,
+    tags:'#PRCDirect #BigScreenDeals #Samsung #WorldCup #Basildon' },
+  { id:'w2-proof', src:'CANVA', pillar:'Social Proof', day:'Sat 11 Jul',
+    title:"Social Proof — Adele's 5★ Trustpilot review",
+    media:{type:'img', url:'https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/9a3881d6-d64a-42aa-9a8a-daeb7965a381.png'},
+    canva:'https://www.canva.com/design/DAHOjymED8k/edit',
+    caption:`A real five-star Trustpilot review. Adele came to us for a QLED TV, and Sam looked after every step — from purchase to delivery, all handled smoothly. That's the PRC difference: proper service, big-screen quality, and a price that beats the sheds. Rated Excellent by customers like Adele.\n\nshop the Samsung 65" QLED at prcdirect.co.uk.`,
+    tags:'#PRCDirect #Trustpilot #QLED #WorldCup #Basildon' },
+];
+
+const configured = SUPABASE_URL.startsWith('http') && !SUPABASE_ANON_KEY.startsWith('YOUR_');
+const sb = configured ? createClient(SUPABASE_URL, SUPABASE_ANON_KEY) : null;
+let statusMap = {}, commentsMap = {};
+let reviewer = localStorage.getItem('prc_email') || '';
+const ALLOWED = /^[^@\s]+@(prcdirect\.co\.uk|opulentcreatives\.io)$/i;
+
+const esc = s => (s||'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const ago = ts => { const s=(Date.now()-new Date(ts).getTime())/1000; if(s<60)return'just now'; if(s<3600)return Math.floor(s/60)+'m ago'; if(s<86400)return Math.floor(s/3600)+'h ago'; return Math.floor(s/86400)+'d ago'; };
+const cmtHTML = c => `<div class="cmt"><div class="ch"><span>${esc(c.author)}</span><span>${ago(c.created_at)}</span></div><div class="cb">${esc(c.body)}</div></div>`;
+
+function render(){
+  document.getElementById('grid').innerHTML = POSTS.map(p=>{
+    const st = statusMap[p.id] || 'Pending review';
+    const media = p.slides
+      ? `<span class="carbadge">Carousel · ${p.slides.length} slides · swipe →</span><div class="strip">${p.slides.map((u,i)=>`<div class="slide"><img src="${u}" loading="lazy" alt=""><span class="sn">${i+1}/${p.slides.length}</span></div>`).join('')}</div>`
+      : (p.media.type==='video'
+          ? `<video src="${p.media.url}" muted autoplay loop playsinline></video>`
+          : `<img src="${p.media.url}" loading="lazy" alt="">`);
+    const cmts = commentsMap[p.id] || [];
+    const clist = cmts.length ? cmts.map(cmtHTML).join('') : `<div class="empty">No comments yet — add the first note.</div>`;
+    const opts = STATUSES.map(s=>`<option value="${s}"${s===st?' selected':''}>${s}</option>`).join('');
+    return `<div class="card" data-id="${p.id}">
+      <div class="media"><span class="src">${p.src}</span><span class="day">${p.day}</span>${media}</div>
+      <div class="cap"><div class="pil">${esc(p.pillar)} · ${esc(p.day)}</div>${esc(p.title)}</div>
+      <div class="capx">${esc(p.caption)}<span class="tags">${esc(p.tags)}</span></div>
+      <div class="track">Status
+        <select data-status>${opts}</select>
+        <span class="stat"><span class="sq ${slug(st)}" data-sq></span><span data-badge>${st}</span></span>
+      </div>
+      <div class="comments">
+        <h4>Comments</h4>
+        <div data-clist>${clist}</div>
+        <div class="cbox">
+          <textarea data-cinput placeholder="Add a comment or change request…"></textarea>
+          <button class="send" data-csend ${configured?'':'disabled'}>Send</button>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+  updateProgress(); wire();
+}
+function updateProgress(){
+  const a = POSTS.filter(p=>(statusMap[p.id]||'')==='Approved').length;
+  document.getElementById('prog').innerHTML = `<b>${a}</b> / ${POSTS.length} Approved`;
+}
+function wire(){
+  document.querySelectorAll('.card').forEach(card=>{
+    const id = card.dataset.id;
+    card.querySelector('[data-status]').addEventListener('change', async e=>{
+      const val = e.target.value;
+      card.querySelector('[data-badge]').textContent = val;
+      card.querySelector('[data-sq]').className = 'sq '+slug(val);
+      statusMap[id] = val; updateProgress();
+      if(configured) await sb.from('prc_status').upsert({post_id:id,status:val,updated_at:new Date().toISOString()},{onConflict:'post_id'});
+    });
+    const btn = card.querySelector('[data-csend]'), input = card.querySelector('[data-cinput]');
+    const submit = async ()=>{
+      const body = input.value.trim(); if(!body) return;
+      if(!configured) return;
+      btn.disabled = true;
+      const { error } = await sb.from('prc_comments').insert({post_id:id,author:reviewer,body});
+      btn.disabled = false;
+      if(error){ alert('Could not save: '+error.message); return; }
+      input.value=''; await loadComments(); renderComments();
+    };
+    btn.addEventListener('click', submit);
+    input.addEventListener('keydown', e=>{ if((e.metaKey||e.ctrlKey)&&e.key==='Enter') submit(); });
+  });
+}
+function renderComments(){
+  document.querySelectorAll('.card').forEach(card=>{
+    const cmts = commentsMap[card.dataset.id] || [];
+    card.querySelector('[data-clist]').innerHTML = cmts.length ? cmts.map(cmtHTML).join('') : `<div class="empty">No comments yet — add the first note.</div>`;
+  });
+}
+function renderStatuses(){
+  document.querySelectorAll('.card').forEach(card=>{
+    const st = statusMap[card.dataset.id]||'Pending review';
+    const sel = card.querySelector('[data-status]'); if(sel.value!==st) sel.value = st;
+    card.querySelector('[data-badge]').textContent = st;
+    card.querySelector('[data-sq]').className = 'sq '+slug(st);
+  });
+  updateProgress();
+}
+async function loadStatuses(){ if(!configured) return; const {data}=await sb.from('prc_status').select('post_id,status'); statusMap={}; (data||[]).forEach(r=>statusMap[r.post_id]=r.status); }
+async function loadComments(){ if(!configured) return; const {data}=await sb.from('prc_comments').select('*').order('created_at',{ascending:true}); commentsMap={}; (data||[]).forEach(c=>{(commentsMap[c.post_id]=commentsMap[c.post_id]||[]).push(c);}); }
+function markSync(){ document.getElementById('sync').textContent = configured ? ('Live · last synced '+new Date().toLocaleTimeString()) : ''; }
+
+async function startApp(){
+  document.getElementById('who2').innerHTML = esc(reviewer)+' · <a id="signout">sign out</a>';
+  const so=document.getElementById('signout'); if(so) so.onclick=()=>{ localStorage.removeItem('prc_email'); location.reload(); };
+  if(configured && reviewer){ try{ sb.from('prc_logins').insert({email:reviewer, ua:(navigator.userAgent||'').slice(0,180)}); }catch(e){} }
+  if(!configured){
+    document.getElementById('banner').style.display='block';
+    document.getElementById('bannerTxt').innerHTML = 'SETUP: paste your Supabase URL + anon key into the top of this file to switch on live comments and the status tracker.';
+  }
+  render();
+  if(configured){
+    await Promise.all([loadStatuses(),loadComments()]); renderStatuses(); renderComments(); markSync();
+    setInterval(async()=>{ await Promise.all([loadStatuses(),loadComments()]); renderStatuses(); renderComments(); markSync(); }, 15000);
+  }
+}
+function openGate(){
+  const g=document.getElementById('gate'), inp=document.getElementById('gemail'), btn=document.getElementById('gbtn'), err=document.getElementById('gerr');
+  document.body.classList.add('locked'); g.style.display='flex'; inp.focus();
+  const go=()=>{
+    const v=inp.value.trim().toLowerCase();
+    if(!ALLOWED.test(v)){ err.textContent='Use your @prcdirect.co.uk or @opulentcreatives.io email.'; inp.focus(); return; }
+    reviewer=v; localStorage.setItem('prc_email',v);
+    g.style.display='none'; document.body.classList.remove('locked'); startApp();
+  };
+  btn.onclick=go;
+  inp.addEventListener('keydown',e=>{ if(e.key==='Enter') go(); });
+}
+const top=document.getElementById('top');
+addEventListener('scroll',()=>top.classList.toggle('scrolled',scrollY>8),{passive:true});
+if(ALLOWED.test(reviewer)){ startApp(); } else { openGate(); }
+</script>
+</body>
+</html>
