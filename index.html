@@ -26,6 +26,8 @@
   .sync{font-size:9px;letter-spacing:1px;text-transform:uppercase;opacity:.45;margin:0 0 16px}
   h2{font-size:11px;text-transform:uppercase;letter-spacing:3px;padding:0 0 9px;margin:20px 0 18px;border-bottom:1px solid var(--ink)}
   .grid{column-width:300px;column-gap:16px}
+  .weekhead{column-span:all;break-inside:avoid;border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);padding:12px 4px;margin:6px 0 14px;font-size:12px;font-weight:700;letter-spacing:2px;text-transform:uppercase}
+  .weekhead .wk{opacity:.5;font-weight:600;letter-spacing:1.5px}
   .card{background:var(--paper);overflow:hidden;display:flex;flex-direction:column;border:1px solid var(--ink);margin:0 0 16px;break-inside:avoid;-webkit-column-break-inside:avoid}
   .media{background:#e8e7e2;overflow:hidden;position:relative}
   .media img,.media video{width:100%;height:auto;display:block}
@@ -116,7 +118,7 @@
 <header id="top">
   <div class="lft">
     <img class="logo" src="https://prcdirect.co.uk/media/logo/stores/1/prc_logo_683.png" alt="PRC Direct">
-    <div class="brand"><p class="kick">Content Review · Opulent Creatives</p><h1>Week of 6–12 Jul</h1></div>
+    <div class="brand"><p class="kick">Content Review · Opulent Creatives</p><h1>Week of 13–19 Jul</h1></div>
   </div>
   <div class="rgt">
     <span class="who2" id="who2"></span>
@@ -129,10 +131,10 @@
 <main>
   <p class="intro">Preview this week's posts. For each, set a <b>status</b> and leave <b>comments</b> — everything saves live, so we see it straight away. Swipe the carousels to view every slide.</p>
   <p class="sync" id="sync"></p>
-  <h2>This Week — W2 · 6–12 Jul (World Cup run-in)</h2>
+  <h2>This Week — W3 · 13–19 Jul (World Cup climax)</h2>
   <div class="brief">
     <div class="bl">The brief</div>
-    <p><b>World Cup run-in.</b> The knockouts are live, so this week is about getting people match-ready — screens and sound sorted before kick-off. Five posts across the pillars, each dated and with a clear route back to PRC: Mon a hero TV spotlight, Tue the Sony last-chance promo, Wed an Insider setup guide, Fri Big Screen Deals, Sat a genuine Trustpilot review.</p>
+    <p><b>World Cup climax.</b> The semi-final (England v Argentina, Wed 8pm) and the Final (Sun 8pm) both land this week — so we go all-in on football. Mon a final-ready setup carousel, Tue the Q990F soundbar, Wed the semi-final matchday push, plus a <b>pre-built reactive pair</b> (in the Final / proud) to fire the moment the whistle blows. Fri final-weekend Big Screen Deals, Sat a last-chance order-or-collect, Sun the Final. <b>Last week (W2) stays below</b> so nothing's lost.</p>
   </div>
   <div class="grid" id="grid"></div>
 </main>
@@ -152,12 +154,20 @@ const STATUSES = ['Pending review','Approved','Changes requested','Scheduled','P
 const slug = s => 's-'+s.toLowerCase().replace(/[^a-z]/g,'');
 
 const POSTS = [
-  { id:'react-eng-semis', src:'CANVA', pillar:'Reactive · Matchday', day:'Sat 11 Jul',
-    title:'England are into the semis',
-    media:{type:'img', url:'https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/ff7ae7aa-de09-4de3-aab4-7e6233059164.png'},
-    canva:'https://www.canva.com/design/DAHPKdSQNvk/edit',
-    caption:`Three Lions into the semis. Bellingham's brace sees off Norway 2–1 and sends England into the World Cup semi-finals — one more step. Get set for the biggest night on a proper big screen: the Samsung 65" 4K QLED AI is £549 in stock now, or £499 with code SUMMER50. Free 5-year warranty, ready before kick-off.\n\nit's coming home.`,
-    tags:'#PRCDirect #ThreeLions #WorldCup #Samsung #QLED #Basildon' },
+  { divider:'Week 3 · Mon 13 – Sun 19 Jul <span class="wk">· World Cup climax</span>' },
+  { id:'w3-mon-insider', src:'CANVA', pillar:'PRC Insider', day:'Mon 13 Jul',
+    title:'Get your TV final-ready (carousel · 6 slides)',
+    media:{type:'img', url:'https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/0043d08a-ad0c-40e4-9e31-e43816927275.png'},
+    slides:['https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/0043d08a-ad0c-40e4-9e31-e43816927275.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/95cc73b3-0531-42d2-aa91-f1a83263616c.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/b2e74575-e4d6-4da6-a9ab-d970bb6f5cc2.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/ab2b86a8-90d9-4a00-ae7a-4de2e96c0bfe.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/e0995526-5568-4bb4-a8aa-d2231b60ef75.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/7015da5a-0648-4b38-b930-78c2b29b2c71.png'],
+    canva:'https://www.canva.com/design/DAHPMOmN-dc/edit',
+    caption:`Get your telly final-ready before Sunday. Six quick wins — right size, picture settings, sound and going big — so the World Cup Final looks and sounds its best at home. Swipe through, then shop the final-ready line-up: 55" Crystal UHD £299 · 55" OLED £849 · HW-B650F soundbar £199 · 65" QLED £549.\n\nfinal-ready in six swipes.`,
+    tags:'#PRCDirect #FinalReady #WorldCup #TVSetup #Samsung #Basildon' },
+  { id:'w3-tue-soundbar', src:'CANVA', pillar:'Product Spotlight', day:'Tue 14 Jul',
+    title:'Hear every roar — Samsung Q990F soundbar',
+    media:{type:'img', url:'https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/a81b7fc1-ea89-479a-9b23-57f5f106826d.png'},
+    canva:'https://www.canva.com/design/DAHPMUm-yrU/edit',
+    caption:`Don't just watch the semis and the Final — feel them. The Samsung HW-Q990F is a full 11.1.4ch Dolby Atmos system — soundbar, subwoofer and rear speakers that turn the front room into the stadium. £749 (was £779), in stock now.\n\nsound like you're there.`,
+    tags:'#PRCDirect #Samsung #Soundbar #DolbyAtmos #WorldCup #Basildon' },
   { id:'w3-wed-semi', src:'CANVA', pillar:'Matchday', day:'Wed 15 Jul',
     title:"It's semi-final day — England v Argentina",
     media:{type:'img', url:'https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/c7024b0f-17fe-4288-92c6-a2917afaeb17.png'},
@@ -176,12 +186,32 @@ const POSTS = [
     canva:'https://www.canva.com/design/DAHPMIoz0uI/edit',
     caption:`What a run. Heads high, England — proud of every one of you. The World Cup Final is still on this Sunday, and there's no better place to watch it than on a proper big screen. Samsung 65" 4K QLED at prcdirect.co.uk.\n\nproud, three lions.`,
     tags:'#PRCDirect #ThreeLions #WorldCup #Samsung #Basildon' },
+  { id:'w3-fri-deals', src:'CANVA', pillar:'Sales', day:'Fri 17 Jul',
+    title:'Final-weekend big-screen deals (carousel · 5 slides)',
+    media:{type:'img', url:'https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/e2538546-29f3-4ab4-bdf8-69fba2f3f304.png'},
+    slides:['https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/e2538546-29f3-4ab4-bdf8-69fba2f3f304.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/bc20f4fa-e064-4d41-8119-74ebf34f6a65.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/48ce7d74-85aa-4b41-b3a6-8d02ff5fd595.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/36599252-e3bc-4ccc-832f-8a543f1349c2.png','https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/674983f8-b648-4b7b-af60-97e3c4fd1ce3.png'],
+    canva:'https://www.canva.com/design/DAHPMP0sTRk/edit',
+    caption:`The Final's this Sunday — go big. Our final-weekend line-up: 100" Neo QLED £2,299 · 55" Crystal UHD £299 · 50" 4K £259 · 55" OLED £849 · 42" OLED £649. In stock now, same-day collection from Basildon.\n\nbig-screen final, sorted.`,
+    tags:'#PRCDirect #FinalWeekend #BigScreenDeals #Samsung #Basildon' },
+  { id:'w3-sat-finaleve', src:'CANVA', pillar:'Last chance', day:'Sat 18 Jul',
+    title:"The Final's this Sunday — order or collect today",
+    media:{type:'img', url:'https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/2fc3b94f-5991-4d6e-a1c0-5e761a7f4eb3.png'},
+    canva:'https://www.canva.com/design/DAHPMZkSjQ0/edit',
+    caption:`One sleep to the Final. Order online by Friday for delivery, or pop into the Basildon showroom and collect today — sorted before Sunday's kick-off. 65" QLED from £499 · 100" Neo QLED £2,299.\n\ndon't miss it.`,
+    tags:'#PRCDirect #WorldCupFinal #Samsung #Basildon' },
   { id:'w3-sun-final', src:'CANVA', pillar:'Matchday', day:'Sun 19 Jul',
     title:"It's the Final",
     media:{type:'img', url:'https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/4bc9c1fd-5902-4c0f-a0c4-62135f82b67c.png'},
     canva:'https://www.canva.com/design/DAHPMC9Oryg/edit',
     caption:`It's the Final. Sunday, kick-off 8pm — the biggest game of them all. Watch it on the biggest screen in the country: the Samsung 100" 4K Neo QLED, £2,299, in stock now at PRC. Biggest game, biggest screen.\n\nprcdirect.co.uk`,
     tags:'#PRCDirect #WorldCupFinal #Samsung #NeoQLED #Basildon' },
+  { divider:'Week 2 · Mon 6 – Sun 12 Jul <span class="wk">· World Cup run-in</span>' },
+  { id:'react-eng-semis', src:'CANVA', pillar:'Reactive · Matchday', day:'Sat 11 Jul',
+    title:'England are into the semis',
+    media:{type:'img', url:'https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/ff7ae7aa-de09-4de3-aab4-7e6233059164.png'},
+    canva:'https://www.canva.com/design/DAHPKdSQNvk/edit',
+    caption:`Three Lions into the semis. Bellingham's brace sees off Norway 2–1 and sends England into the World Cup semi-finals — one more step. Get set for the biggest night on a proper big screen: the Samsung 65" 4K QLED AI is £549 in stock now, or £499 with code SUMMER50. Free 5-year warranty, ready before kick-off.\n\nit's coming home.`,
+    tags:'#PRCDirect #ThreeLions #WorldCup #Samsung #QLED #Basildon' },
   { id:'w2-spotlight', src:'CANVA', pillar:'Product Spotlight', day:'Mon 6 Jul',
     title:'The final deserves a bigger screen',
     media:{type:'img', url:'https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/b7bb1fd2-9b08-4dd9-8680-a6830acbef27.png'},
@@ -230,6 +260,7 @@ const isAgency = () => /@opulentcreatives\.io$/i.test(reviewer);
 function render(){
   const agency = isAgency();
   document.getElementById('grid').innerHTML = POSTS.map(p=>{
+    if(p.divider) return `<div class="weekhead">${p.divider}</div>`;
     const st = statusMap[p.id] || 'Pending review';
     const nAssets = p.slides ? p.slides.length : 1;
     const dl = agency ? `<div class="aglabel">Opulent team · internal tools</div><div class="agencybar"><button class="dl" data-dl>↓ Download ${p.slides?`${nAssets} slides`:'asset'}</button>${p.canva?`<a class="dl" href="${p.canva}" target="_blank" rel="noopener">✎ Edit in Canva</a>`:''}</div>` : '';
@@ -264,7 +295,7 @@ function render(){
 }
 function updateProgress(){
   const a = POSTS.filter(p=>(statusMap[p.id]||'')==='Approved').length;
-  document.getElementById('prog').innerHTML = `<b>${a}</b> / ${POSTS.length} Approved`;
+  document.getElementById('prog').innerHTML = `<b>${a}</b> / ${POSTS.filter(p=>!p.divider).length} Approved`;
 }
 async function downloadAssets(id, btn){
   if(!isAgency()) return;
