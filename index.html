@@ -63,10 +63,13 @@
   .send:disabled{opacity:.4;cursor:default}
   a.open{display:block;text-align:center;background:var(--paper);color:var(--ink);text-decoration:none;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:11px;border-top:1px solid var(--ink);transition:.15s}
   a.open:hover{background:var(--ink);color:var(--paper)}
-  .dl{display:block;width:100%;text-align:center;background:var(--paper);color:var(--ink);border:0;border-top:1px solid var(--ink);font:inherit;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:11px;cursor:pointer;transition:.15s}
+  .dl{display:block;width:100%;text-align:center;background:var(--paper);color:var(--ink);border:0;border-top:1px solid var(--ink);font:inherit;font-size:10px;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:11px;cursor:pointer;transition:.15s;text-decoration:none}
   .dl:hover:not(:disabled){background:var(--ink);color:var(--paper)}
   .dl:disabled{opacity:.6;cursor:default}
-  .dl .agy{font-size:8px;letter-spacing:1.5px;opacity:.55;display:block;margin-top:3px}
+  .aglabel{border-top:1px solid var(--ink);text-align:center;font-size:8px;letter-spacing:1.5px;text-transform:uppercase;opacity:.5;padding:6px 0 0}
+  .agencybar{display:flex}
+  .agencybar .dl{flex:1;border-top:0}
+  .agencybar .dl+.dl{border-left:1px solid var(--ink)}
   footer{max-width:1180px;margin:0 auto;padding:0 28px 60px;font-size:10px;opacity:.5}
   .who2{font-size:9px;letter-spacing:.3px;opacity:.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
   .who2 a{color:var(--ink);opacity:.7;text-decoration:underline;cursor:pointer}
@@ -205,7 +208,7 @@ function render(){
   document.getElementById('grid').innerHTML = POSTS.map(p=>{
     const st = statusMap[p.id] || 'Pending review';
     const nAssets = p.slides ? p.slides.length : 1;
-    const dl = agency ? `<button class="dl" data-dl>↓ Download ${p.slides?`${nAssets} slides`:'asset'}<span class="agy">Opulent team only</span></button>` : '';
+    const dl = agency ? `<div class="aglabel">Opulent team · internal tools</div><div class="agencybar"><button class="dl" data-dl>↓ Download ${p.slides?`${nAssets} slides`:'asset'}</button>${p.canva?`<a class="dl" href="${p.canva}" target="_blank" rel="noopener">✎ Edit in Canva</a>`:''}</div>` : '';
     const media = p.slides
       ? `<span class="carbadge">Carousel · ${p.slides.length} slides · swipe →</span><div class="strip">${p.slides.map((u,i)=>`<div class="slide"><img src="${u}" loading="lazy" alt=""><span class="sn">${i+1}/${p.slides.length}</span></div>`).join('')}</div>`
       : (p.media.type==='video'
