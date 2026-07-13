@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>PRC Direct — Content Review</title>
 <style>
-  :root{--ink:#0a0a0a;--paper:#f4f3ef;--red:#E1251B}
+  :root{--ink:#0a0a0a;--paper:#f4f3ef;--red:#E1251B;--cobalt:#0047AB}
   *{box-sizing:border-box}
   body{margin:0;font-family:"SFMono-Regular",ui-monospace,"SF Mono",Menlo,Consolas,"Liberation Mono",monospace;color:var(--ink);background:var(--paper);-webkit-font-smoothing:antialiased}
   header{position:sticky;top:0;z-index:50;display:flex;align-items:center;justify-content:space-between;gap:20px;padding:12px 28px;background:rgba(244,243,239,.62);-webkit-backdrop-filter:blur(20px) saturate(180%);backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid rgba(0,0,0,.1);transition:background .25s,box-shadow .25s,border-color .25s}
@@ -32,9 +32,9 @@
   .media{background:#e8e7e2;overflow:hidden;position:relative}
   .media img,.media video{width:100%;height:auto;display:block}
   .src{position:absolute;top:9px;left:9px;font-size:9px;font-weight:600;letter-spacing:1.5px;color:#fff;border:1px solid rgba(255,255,255,.55);padding:3px 7px;background:rgba(0,0,0,.4);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
-  .day{position:absolute;top:9px;right:9px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#fff;background:var(--red);border:0;padding:4px 9px}
-  .dayline{display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid var(--ink);font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
-  .dayline .dl-k{font-size:8px;letter-spacing:2px;opacity:.5;font-weight:700}
+  .day{position:absolute;top:9px;right:9px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#fff;background:var(--cobalt);border:0;padding:4px 9px}
+  .dayline{display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid var(--ink);font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--cobalt)}
+  .dayline .dl-k{font-size:8px;letter-spacing:2px;opacity:.55;font-weight:700;color:var(--ink)}
   .carbadge{position:absolute;bottom:9px;left:9px;z-index:3;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#fff;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.4);padding:3px 7px}
   .strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
   .strip::-webkit-scrollbar{height:5px}
