@@ -72,6 +72,17 @@
   .agencybar{display:flex}
   .agencybar .dl{flex:1;border-top:0}
   .agencybar .dl+.dl{border-left:1px solid var(--ink)}
+  .agedit{border-top:1px solid var(--ink);padding:10px 12px;background:rgba(225,37,27,.05)}
+  .agttl{font-size:8px;letter-spacing:1.5px;text-transform:uppercase;opacity:.55;margin:0 0 8px;font-weight:700}
+  .agrow{display:flex;gap:8px;margin:0 0 8px}
+  .agrow select{flex:1;font:inherit;font-size:10px;text-transform:uppercase;letter-spacing:.5px;padding:6px 8px;border:1px solid var(--ink);background:var(--paper);color:var(--ink);border-radius:0}
+  .agbtn{font:inherit;font-size:9px;font-weight:700;letter-spacing:1.5px;text-transform:uppercase;padding:6px 10px;border:1px solid var(--ink);background:var(--paper);color:var(--ink);cursor:pointer;transition:.15s}
+  .agbtn:hover{background:var(--ink);color:var(--paper)}
+  .agbtn.wide{display:block;width:100%}
+  .agcap{width:100%;font:inherit;font-size:10px;line-height:1.5;padding:7px 8px;border:1px solid var(--ink);background:var(--paper);color:var(--ink);resize:vertical;min-height:64px;border-radius:0;margin:0 0 8px}
+  .agsaved{font-size:9px;letter-spacing:.5px;opacity:.55;margin-left:8px}
+  .card.ishidden{opacity:.55}
+  .hidebadge{position:absolute;bottom:9px;right:9px;z-index:3;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#fff;background:var(--red);border:1px solid rgba(255,255,255,.4);padding:3px 7px}
   footer{max-width:1180px;margin:0 auto;padding:0 28px 60px;font-size:10px;opacity:.5}
   .who2{font-size:9px;letter-spacing:.3px;opacity:.65;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:190px}
   .who2 a{color:var(--ink);opacity:.7;text-decoration:underline;cursor:pointer}
@@ -187,7 +198,7 @@ const POSTS = [
     canva:'https://www.canva.com/design/DAHPMP0sTRk/edit',
     caption:`The Final's this Sunday — go premium. Our final-weekend line-up: 85" QLED £999 (SUMMER100) · 83" OLED £4,799 (save £200) · 75" TCL QLED £699 (save £100) · 65" OLED £1,179 (SUMMER100) · 55" QLED £379. All in stock now, same-day collection from Basildon.\n\nbig-screen final, sorted.`,
     tags:'#PRCDirect #FinalWeekend #BigScreenDeals #Samsung #Basildon' },
-  { id:'w3-sat-final', src:'CANVA', pillar:'Matchday', day:'Sat 18 Jul',
+  { id:'w3-fri-final', src:'CANVA', pillar:'Matchday', day:'Fri 17 Jul',
     title:"It's the Final",
     media:{type:'img', url:'https://d2ol7oe51mr4n9.cloudfront.net/user_37D085a8z1fa1VrN7HB70gvsfyg/e47ddb25-4c05-4b40-a264-09e948459e22.png'},
     canva:'https://www.canva.com/design/DAHPMC9Oryg/edit',
@@ -245,26 +256,48 @@ const ago = ts => { const s=(Date.now()-new Date(ts).getTime())/1000; if(s<60)re
 const cmtHTML = c => `<div class="cmt"><div class="ch"><span>${esc(c.author)}</span><span>${ago(c.created_at)}</span></div><div class="cb">${esc(c.body)}</div></div>`;
 
 const isAgency = () => /@opulentcreatives\.io$/i.test(reviewer);
-function render(){
-  const agency = isAgency();
-  document.getElementById('grid').innerHTML = POSTS.map(p=>{
-    if(p.divider) return `<div class="weekhead">${p.divider}</div>`;
-    const st = statusMap[p.id] || 'Pending review';
-    const nAssets = p.slides ? p.slides.length : 1;
-    const dl = agency ? `<div class="aglabel">Opulent team · internal tools</div><div class="agencybar"><button class="dl" data-dl>↓ Download ${p.slides?`${nAssets} slides`:'asset'}</button>${p.canva?`<a class="dl" href="${p.canva}" target="_blank" rel="noopener">✎ Edit in Canva</a>`:''}</div>` : '';
-    const media = p.slides
-      ? `<span class="carbadge">Carousel · ${p.slides.length} slides · swipe →</span><div class="strip">${p.slides.map((u,i)=>`<div class="slide"><img src="${u}" loading="lazy" alt=""><span class="sn">${i+1}/${p.slides.length}</span></div>`).join('')}</div>`
-      : (p.media.type==='video'
-          ? `<video src="${p.media.url}" muted autoplay loop playsinline></video>`
-          : `<img src="${p.media.url}" loading="lazy" alt="">`);
-    const cmts = commentsMap[p.id] || [];
-    const clist = cmts.length ? cmts.map(cmtHTML).join('') : `<div class="empty">No comments yet — add the first note.</div>`;
-    const opts = STATUSES.map(s=>`<option value="${s}"${s===st?' selected':''}>${s}</option>`).join('');
-    return `<div class="card" data-id="${p.id}">
-      <div class="media"><span class="src">${p.src}</span><span class="day">${p.day}</span>${media}</div>
-      <div class="cap"><div class="pil">${esc(p.pillar)} · ${esc(p.day)}</div>${esc(p.title)}</div>
-      <div class="capx">${esc(p.caption)}<span class="tags">${esc(p.tags)}</span></div>
-      ${dl}
+
+/* ---- scheduling helpers ---- */
+const MONTHS={Jan:0,Feb:1,Mar:2,Apr:3,May:4,Jun:5,Jul:6,Aug:7,Sep:8,Oct:9,Nov:10,Dec:11};
+const WEEKS=[
+  {lo:13,hi:19,days:['Mon 13 Jul','Tue 14 Jul','Wed 15 Jul','Thu 16 Jul','Fri 17 Jul','Sat 18 Jul','Sun 19 Jul']},
+  {lo:6,hi:12,days:['Mon 6 Jul','Tue 7 Jul','Wed 8 Jul','Thu 9 Jul','Fri 10 Jul','Sat 11 Jul','Sun 12 Jul']},
+];
+const baseDay = d => (d||'').split('·')[0].trim();
+function weekDays(day){ const m=(day||'').match(/(\d{1,2})\s+Jul/); const n=m?+m[1]:13; const w=WEEKS.find(w=>n>=w.lo&&n<=w.hi)||WEEKS[0]; return w.days; }
+function dayKey(day){ const m=(day||'').match(/(\d{1,2})\s+([A-Za-z]{3})/); if(!m) return 0; let k=(MONTHS[m[2]]??0)*100+(+m[1]); if(/post-?match/i.test(day)) k+=0.5; return k; }
+
+/* ---- agency edits (reschedule / caption / hide), shared via Supabase, cached locally ---- */
+let editsMap={}; try{ editsMap=JSON.parse(localStorage.getItem('prc_edits')||'{}'); }catch(e){ editsMap={}; }
+const eff = p => ({ ...p, ...(editsMap[p.id]||{}) });
+async function loadEdits(){ if(!configured) return; try{ const {data,error}=await sb.from('prc_edits').select('*'); if(error) throw error; const m={}; (data||[]).forEach(r=>{ const o={}; if(r.day!=null)o.day=r.day; if(r.caption!=null)o.caption=r.caption; if(r.hidden!=null)o.hidden=r.hidden; m[r.post_id]=o; }); editsMap=m; localStorage.setItem('prc_edits',JSON.stringify(editsMap)); }catch(e){ /* prc_edits table not set up yet — keep local-only */ } }
+async function saveEdit(id,patch){ editsMap[id]={...(editsMap[id]||{}),...patch}; localStorage.setItem('prc_edits',JSON.stringify(editsMap)); if(configured){ try{ await sb.from('prc_edits').upsert({post_id:id, day:editsMap[id].day??null, caption:editsMap[id].caption??null, hidden:!!editsMap[id].hidden, updated_at:new Date().toISOString()},{onConflict:'post_id'}); }catch(e){} } }
+
+function cardHTML(p, agency){
+  const e = eff(p);
+  const st = statusMap[p.id] || 'Pending review';
+  const nAssets = p.slides ? p.slides.length : 1;
+  const dl = agency ? `<div class="aglabel">Opulent team · internal tools</div><div class="agencybar"><button class="dl" data-dl>↓ Download ${p.slides?`${nAssets} slides`:'asset'}</button>${p.canva?`<a class="dl" href="${p.canva}" target="_blank" rel="noopener">✎ Edit in Canva</a>`:''}</div>` : '';
+  const agedit = agency ? `<div class="agedit">
+        <div class="agttl">Reschedule / edit · Opulent only</div>
+        <div class="agrow">
+          <select data-eday>${weekDays(e.day).map(d=>`<option${d===baseDay(e.day)?' selected':''}>${d}</option>`).join('')}</select>
+          <button class="agbtn" data-ehide>${e.hidden?'Unhide':'Hide'}</button>
+        </div>
+        <textarea class="agcap" data-ecap>${esc(e.caption)}</textarea>
+        <button class="agbtn wide" data-esave>Save changes</button><span class="agsaved" data-esaved></span>
+      </div>` : '';
+  const media = p.slides
+    ? `<span class="carbadge">Carousel · ${p.slides.length} slides · swipe →</span><div class="strip">${p.slides.map((u,i)=>`<div class="slide"><img src="${u}" loading="lazy" alt=""><span class="sn">${i+1}/${p.slides.length}</span></div>`).join('')}</div>`
+    : (p.media.type==='video' ? `<video src="${p.media.url}" muted autoplay loop playsinline></video>` : `<img src="${p.media.url}" loading="lazy" alt="">`);
+  const cmts = commentsMap[p.id] || [];
+  const clist = cmts.length ? cmts.map(cmtHTML).join('') : `<div class="empty">No comments yet — add the first note.</div>`;
+  const opts = STATUSES.map(s=>`<option value="${s}"${s===st?' selected':''}>${s}</option>`).join('');
+  return `<div class="card${e.hidden?' ishidden':''}" data-id="${p.id}">
+      <div class="media"><span class="src">${p.src}</span><span class="day">${esc(baseDay(e.day))}</span>${e.hidden?'<span class="hidebadge">Hidden</span>':''}${media}</div>
+      <div class="cap"><div class="pil">${esc(p.pillar)} · ${esc(e.day)}</div>${esc(p.title)}</div>
+      <div class="capx">${esc(e.caption)}<span class="tags">${esc(p.tags)}</span></div>
+      ${dl}${agedit}
       <div class="track">Status
         <select data-status>${opts}</select>
         <span class="stat"><span class="sq ${slug(st)}" data-sq></span><span data-badge>${st}</span></span>
@@ -278,12 +311,25 @@ function render(){
         </div>
       </div>
     </div>`;
+}
+
+function render(){
+  const agency = isAgency();
+  const groups=[]; let cur=null;
+  POSTS.forEach(p=>{ if(p.divider){ cur={divider:p.divider,items:[]}; groups.push(cur); } else { if(!cur){ cur={divider:null,items:[]}; groups.push(cur); } cur.items.push(p); } });
+  document.getElementById('grid').innerHTML = groups.map(g=>{
+    let items = g.items.slice();
+    if(!agency) items = items.filter(p=>!eff(p).hidden);
+    items.sort((a,b)=>dayKey(eff(a).day)-dayKey(eff(b).day));
+    if(g.divider && !items.length) return '';
+    return (g.divider?`<div class="weekhead">${g.divider}</div>`:'') + items.map(p=>cardHTML(p,agency)).join('');
   }).join('');
   updateProgress(); wire();
 }
 function updateProgress(){
-  const a = POSTS.filter(p=>(statusMap[p.id]||'')==='Approved').length;
-  document.getElementById('prog').innerHTML = `<b>${a}</b> / ${POSTS.filter(p=>!p.divider).length} Approved`;
+  const posts = POSTS.filter(p=>!p.divider && !eff(p).hidden);
+  const a = posts.filter(p=>(statusMap[p.id]||'')==='Approved').length;
+  document.getElementById('prog').innerHTML = `<b>${a}</b> / ${posts.length} Approved`;
 }
 async function downloadAssets(id, btn){
   if(!isAgency()) return;
@@ -312,6 +358,12 @@ function wire(){
     const id = card.dataset.id;
     const dlBtn = card.querySelector('[data-dl]');
     if(dlBtn) dlBtn.addEventListener('click', ()=>downloadAssets(id, dlBtn));
+    const eday = card.querySelector('[data-eday]');
+    if(eday) eday.addEventListener('change', async e=>{ await saveEdit(id,{day:e.target.value}); render(); });
+    const ehide = card.querySelector('[data-ehide]');
+    if(ehide) ehide.addEventListener('click', async ()=>{ const cur=!!(editsMap[id]&&editsMap[id].hidden); await saveEdit(id,{hidden:!cur}); render(); });
+    const esave = card.querySelector('[data-esave]'), ecap = card.querySelector('[data-ecap]'), esaved = card.querySelector('[data-esaved]');
+    if(esave) esave.addEventListener('click', async ()=>{ esave.disabled=true; await saveEdit(id,{caption:ecap.value}); esave.disabled=false; if(esaved){ esaved.textContent='saved ✓'; setTimeout(()=>{esaved.textContent='';},2000); } });
     card.querySelector('[data-status]').addEventListener('change', async e=>{
       const val = e.target.value;
       card.querySelector('[data-badge]').textContent = val;
@@ -362,8 +414,13 @@ async function startApp(){
   }
   render();
   if(configured){
-    await Promise.all([loadStatuses(),loadComments()]); renderStatuses(); renderComments(); markSync();
-    setInterval(async()=>{ await Promise.all([loadStatuses(),loadComments()]); renderStatuses(); renderComments(); markSync(); }, 15000);
+    await Promise.all([loadStatuses(),loadComments(),loadEdits()]); render(); renderStatuses(); renderComments(); markSync();
+    let editsSig = JSON.stringify(editsMap);
+    setInterval(async()=>{
+      await Promise.all([loadStatuses(),loadComments(),loadEdits()]);
+      const sig = JSON.stringify(editsMap); if(sig!==editsSig){ editsSig=sig; render(); }
+      renderStatuses(); renderComments(); markSync();
+    }, 15000);
   }
 }
 function openGate(){
