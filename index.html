@@ -449,16 +449,21 @@ async function loadStatuses(){ if(!configured) return; const {data}=await sb.fro
 async function loadComments(){ if(!configured) return; const {data}=await sb.from('prc_comments').select('*').order('created_at',{ascending:true}); commentsMap={}; (data||[]).forEach(c=>{(commentsMap[c.post_id]=commentsMap[c.post_id]||[]).push(c);}); }
 function markSync(){ document.getElementById('sync').textContent = configured ? ('Live · last synced '+new Date().toLocaleTimeString()) : ''; }
 
-function emailClientReady(){
-  let to = localStorage.getItem('prc_client_email')||'';
-  const entered = prompt('Client email to notify:', to);
-  if(entered===null) return;
-  to = entered.trim(); if(to) localStorage.setItem('prc_client_email',to);
-  const url = location.origin + location.pathname;
-  const week = (document.querySelector('.brand h1')||{}).textContent || 'this week';
-  const subject = `PRC Direct — new posts ready to review (${week})`;
-  const body = `Hi,\n\nThis ${week.toLowerCase()}'s PRC Direct social posts are ready for your review.\n\nView and approve here:\n${url}\n\nFor each post you can set a status (Approved / Changes requested) and leave comments — we'll see them straight away.\n\nThanks,\nOpulent Creatives`;
-  location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+async function emailClientReady(){
+  if(!configured){ alert('Email backend not configured.'); return; }
+  const week = ((document.querySelector('.brand h1')||{}).textContent || 'this week').trim();
+  if(!confirm('Send the branded review email to the client now?')) return;
+  const eb=document.getElementById('emailBtn'); const orig=eb?eb.textContent:'';
+  if(eb){ eb.disabled=true; eb.textContent='Sending…'; }
+  try{
+    const { data, error } = await sb.rpc('send_review_email',{ p_week: week });
+    if(error) throw error;
+    if(data && data.error) throw new Error(data.error);
+    if(eb){ eb.textContent='✓ Sent to client'; setTimeout(()=>{ eb.textContent=orig; eb.disabled=false; },4000); }
+  }catch(e){
+    if(eb){ eb.textContent=orig; eb.disabled=false; }
+    alert('Could not send: '+(e.message||e));
+  }
 }
 async function startApp(){
   document.getElementById('who2').innerHTML = esc(reviewer)+' · <a id="signout">sign out</a>';
