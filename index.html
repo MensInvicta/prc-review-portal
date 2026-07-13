@@ -81,6 +81,10 @@
   .agbtn.wide{display:block;width:100%}
   .agcap{width:100%;font:inherit;font-size:10px;line-height:1.5;padding:7px 8px;border:1px solid var(--ink);background:var(--paper);color:var(--ink);resize:vertical;min-height:64px;border-radius:0;margin:0 0 8px}
   .agsaved{font-size:9px;letter-spacing:.5px;opacity:.55;margin-left:8px}
+  .agup{position:relative;margin:0 0 6px}
+  .agnote{font-size:9px;line-height:1.5;opacity:.6;margin:0 0 10px}
+  .ebtn{font:inherit;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:6px 10px;cursor:pointer;white-space:nowrap}
+  .ebtn:hover{opacity:.85}
   .card.ishidden{opacity:.55}
   .hidebadge{position:absolute;bottom:9px;right:9px;z-index:3;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#fff;background:var(--red);border:1px solid rgba(255,255,255,.4);padding:3px 7px}
   footer{max-width:1180px;margin:0 auto;padding:0 28px 60px;font-size:10px;opacity:.5}
@@ -132,6 +136,7 @@
     <div class="brand"><p class="kick">Content Review · Opulent Creatives</p><h1>Week of 13–19 Jul</h1></div>
   </div>
   <div class="rgt">
+    <button class="ebtn" id="emailBtn" style="display:none">✉ Email client — posts ready</button>
     <span class="who2" id="who2"></span>
     <span class="prog" id="prog">—</span>
   </div>
@@ -269,27 +274,29 @@ function dayKey(day){ const m=(day||'').match(/(\d{1,2})\s+([A-Za-z]{3})/); if(!
 
 /* ---- agency edits (reschedule / caption / hide), shared via Supabase, cached locally ---- */
 let editsMap={}; try{ editsMap=JSON.parse(localStorage.getItem('prc_edits')||'{}'); }catch(e){ editsMap={}; }
-const eff = p => ({ ...p, ...(editsMap[p.id]||{}) });
-async function loadEdits(){ if(!configured) return; try{ const {data,error}=await sb.from('prc_edits').select('*'); if(error) throw error; const m={}; (data||[]).forEach(r=>{ const o={}; if(r.day!=null)o.day=r.day; if(r.caption!=null)o.caption=r.caption; if(r.hidden!=null)o.hidden=r.hidden; m[r.post_id]=o; }); editsMap=m; localStorage.setItem('prc_edits',JSON.stringify(editsMap)); }catch(e){ /* prc_edits table not set up yet — keep local-only */ } }
-async function saveEdit(id,patch){ editsMap[id]={...(editsMap[id]||{}),...patch}; localStorage.setItem('prc_edits',JSON.stringify(editsMap)); if(configured){ try{ await sb.from('prc_edits').upsert({post_id:id, day:editsMap[id].day??null, caption:editsMap[id].caption??null, hidden:!!editsMap[id].hidden, updated_at:new Date().toISOString()},{onConflict:'post_id'}); }catch(e){} } }
+function eff(p){ const e=editsMap[p.id]||{}; const o={...p}; if(e.day!=null)o.day=e.day; if(e.caption!=null)o.caption=e.caption; if(e.hidden!=null)o.hidden=e.hidden; if(e.slides&&e.slides.length)o.slides=e.slides; if(e.media)o.media={type:'img',url:e.media}; return o; }
+async function loadEdits(){ if(!configured) return; try{ const {data,error}=await sb.from('prc_edits').select('*'); if(error) throw error; const m={}; (data||[]).forEach(r=>{ const o={}; if(r.day!=null)o.day=r.day; if(r.caption!=null)o.caption=r.caption; if(r.hidden!=null)o.hidden=r.hidden; if(r.media!=null)o.media=r.media; if(r.slides!=null)o.slides=r.slides; m[r.post_id]=o; }); editsMap=m; localStorage.setItem('prc_edits',JSON.stringify(editsMap)); }catch(e){ /* prc_edits table not set up yet — keep local-only */ } }
+async function saveEdit(id,patch){ editsMap[id]={...(editsMap[id]||{}),...patch}; localStorage.setItem('prc_edits',JSON.stringify(editsMap)); if(configured){ try{ const e=editsMap[id]; await sb.from('prc_edits').upsert({post_id:id, day:e.day??null, caption:e.caption??null, hidden:!!e.hidden, media:e.media??null, slides:e.slides??null, updated_at:new Date().toISOString()},{onConflict:'post_id'}); }catch(err){} } }
 
 function cardHTML(p, agency){
   const e = eff(p);
   const st = statusMap[p.id] || 'Pending review';
-  const nAssets = p.slides ? p.slides.length : 1;
-  const dl = agency ? `<div class="aglabel">Opulent team · internal tools</div><div class="agencybar"><button class="dl" data-dl>↓ Download ${p.slides?`${nAssets} slides`:'asset'}</button>${p.canva?`<a class="dl" href="${p.canva}" target="_blank" rel="noopener">✎ Edit in Canva</a>`:''}</div>` : '';
+  const nAssets = e.slides ? e.slides.length : 1;
+  const dl = agency ? `<div class="aglabel">Opulent team · internal tools</div><div class="agencybar"><button class="dl" data-dl>↓ Download ${e.slides?`${nAssets} slides`:'asset'}</button>${p.canva?`<a class="dl" href="${p.canva}" target="_blank" rel="noopener">✎ Edit in Canva</a>`:''}</div>` : '';
   const agedit = agency ? `<div class="agedit">
         <div class="agttl">Reschedule / edit · Opulent only</div>
         <div class="agrow">
           <select data-eday>${weekDays(e.day).map(d=>`<option${d===baseDay(e.day)?' selected':''}>${d}</option>`).join('')}</select>
           <button class="agbtn" data-ehide>${e.hidden?'Unhide':'Hide'}</button>
         </div>
+        <label class="agbtn wide agup">↻ Update thumbnail from Canva<input type="file" accept="image/*" multiple data-ethumb hidden></label>
+        <div class="agnote">Export from Canva (Share → Download → PNG), then pick the file(s) here — 1 image updates the cover, or select all slides to replace the carousel. Live for everyone. <span class="agsaved" data-ethumbmsg></span></div>
         <textarea class="agcap" data-ecap>${esc(e.caption)}</textarea>
-        <button class="agbtn wide" data-esave>Save changes</button><span class="agsaved" data-esaved></span>
+        <button class="agbtn wide" data-esave>Save caption</button><span class="agsaved" data-esaved></span>
       </div>` : '';
-  const media = p.slides
-    ? `<span class="carbadge">Carousel · ${p.slides.length} slides · swipe →</span><div class="strip">${p.slides.map((u,i)=>`<div class="slide"><img src="${u}" loading="lazy" alt=""><span class="sn">${i+1}/${p.slides.length}</span></div>`).join('')}</div>`
-    : (p.media.type==='video' ? `<video src="${p.media.url}" muted autoplay loop playsinline></video>` : `<img src="${p.media.url}" loading="lazy" alt="">`);
+  const media = e.slides
+    ? `<span class="carbadge">Carousel · ${e.slides.length} slides · swipe →</span><div class="strip">${e.slides.map((u,i)=>`<div class="slide"><img src="${u}" loading="lazy" alt=""><span class="sn">${i+1}/${e.slides.length}</span></div>`).join('')}</div>`
+    : (e.media.type==='video' ? `<video src="${e.media.url}" muted autoplay loop playsinline></video>` : `<img src="${e.media.url}" loading="lazy" alt="">`);
   const cmts = commentsMap[p.id] || [];
   const clist = cmts.length ? cmts.map(cmtHTML).join('') : `<div class="empty">No comments yet — add the first note.</div>`;
   const opts = STATUSES.map(s=>`<option value="${s}"${s===st?' selected':''}>${s}</option>`).join('');
@@ -333,7 +340,8 @@ function updateProgress(){
 }
 async function downloadAssets(id, btn){
   if(!isAgency()) return;
-  const p = POSTS.find(x=>x.id===id); if(!p) return;
+  const p0 = POSTS.find(x=>x.id===id); if(!p0) return;
+  const p = eff(p0);
   const urls = p.slides ? p.slides.slice() : [p.media.url];
   const label = btn ? btn.innerHTML : '';
   if(btn){ btn.disabled = true; btn.textContent = 'Downloading…'; }
@@ -364,6 +372,28 @@ function wire(){
     if(ehide) ehide.addEventListener('click', async ()=>{ const cur=!!(editsMap[id]&&editsMap[id].hidden); await saveEdit(id,{hidden:!cur}); render(); });
     const esave = card.querySelector('[data-esave]'), ecap = card.querySelector('[data-ecap]'), esaved = card.querySelector('[data-esaved]');
     if(esave) esave.addEventListener('click', async ()=>{ esave.disabled=true; await saveEdit(id,{caption:ecap.value}); esave.disabled=false; if(esaved){ esaved.textContent='saved ✓'; setTimeout(()=>{esaved.textContent='';},2000); } });
+    const ethumb = card.querySelector('[data-ethumb]'), ethumbmsg = card.querySelector('[data-ethumbmsg]');
+    if(ethumb) ethumb.addEventListener('change', async e=>{
+      const files=[...e.target.files]; if(!files.length) return;
+      if(!configured){ if(ethumbmsg) ethumbmsg.textContent='storage not configured'; return; }
+      if(ethumbmsg) ethumbmsg.textContent='Uploading…';
+      try{
+        files.sort((a,b)=>a.name.localeCompare(b.name,undefined,{numeric:true}));
+        const urls=[];
+        for(const f of files){
+          const path=`${id}/${Date.now()}-${(f.name||'img').replace(/[^a-zA-Z0-9._-]/g,'_')}`;
+          const up=await sb.storage.from('previews').upload(path,f,{upsert:true,contentType:f.type||'image/png'});
+          if(up.error) throw up.error;
+          urls.push(sb.storage.from('previews').getPublicUrl(path).data.publicUrl);
+        }
+        const p0=POSTS.find(x=>x.id===id), curSlides=(editsMap[id]&&editsMap[id].slides)||(p0&&p0.slides);
+        const patch={media:urls[0]};
+        if(curSlides){ if(urls.length>1){ patch.slides=urls; } else { const s=curSlides.slice(); s[0]=urls[0]; patch.slides=s; } }
+        await saveEdit(id,patch);
+        if(ethumbmsg) ethumbmsg.textContent='updated ✓';
+        render();
+      }catch(err){ if(ethumbmsg) ethumbmsg.textContent='upload failed — '+(err.message||'error'); }
+    });
     card.querySelector('[data-status]').addEventListener('change', async e=>{
       const val = e.target.value;
       card.querySelector('[data-badge]').textContent = val;
@@ -404,9 +434,21 @@ async function loadStatuses(){ if(!configured) return; const {data}=await sb.fro
 async function loadComments(){ if(!configured) return; const {data}=await sb.from('prc_comments').select('*').order('created_at',{ascending:true}); commentsMap={}; (data||[]).forEach(c=>{(commentsMap[c.post_id]=commentsMap[c.post_id]||[]).push(c);}); }
 function markSync(){ document.getElementById('sync').textContent = configured ? ('Live · last synced '+new Date().toLocaleTimeString()) : ''; }
 
+function emailClientReady(){
+  let to = localStorage.getItem('prc_client_email')||'';
+  const entered = prompt('Client email to notify:', to);
+  if(entered===null) return;
+  to = entered.trim(); if(to) localStorage.setItem('prc_client_email',to);
+  const url = location.origin + location.pathname;
+  const week = (document.querySelector('.brand h1')||{}).textContent || 'this week';
+  const subject = `PRC Direct — new posts ready to review (${week})`;
+  const body = `Hi,\n\nThis ${week.toLowerCase()}'s PRC Direct social posts are ready for your review.\n\nView and approve here:\n${url}\n\nFor each post you can set a status (Approved / Changes requested) and leave comments — we'll see them straight away.\n\nThanks,\nOpulent Creatives`;
+  location.href = `mailto:${encodeURIComponent(to)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+}
 async function startApp(){
   document.getElementById('who2').innerHTML = esc(reviewer)+' · <a id="signout">sign out</a>';
   const so=document.getElementById('signout'); if(so) so.onclick=()=>{ localStorage.removeItem('prc_email'); location.reload(); };
+  const eb=document.getElementById('emailBtn'); if(eb && isAgency()){ eb.style.display=''; eb.onclick=emailClientReady; }
   if(configured && reviewer){ try{ sb.from('prc_logins').insert({email:reviewer, ua:(navigator.userAgent||'').slice(0,180)}); }catch(e){} }
   if(!configured){
     document.getElementById('banner').style.display='block';
