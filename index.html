@@ -32,7 +32,9 @@
   .media{background:#e8e7e2;overflow:hidden;position:relative}
   .media img,.media video{width:100%;height:auto;display:block}
   .src{position:absolute;top:9px;left:9px;font-size:9px;font-weight:600;letter-spacing:1.5px;color:#fff;border:1px solid rgba(255,255,255,.55);padding:3px 7px;background:rgba(0,0,0,.4);-webkit-backdrop-filter:blur(2px);backdrop-filter:blur(2px)}
-  .day{position:absolute;top:9px;right:9px;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#fff;background:rgba(0,0,0,.4);border:1px solid rgba(255,255,255,.4);padding:3px 7px}
+  .day{position:absolute;top:9px;right:9px;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:#fff;background:var(--red);border:0;padding:4px 9px}
+  .dayline{display:flex;align-items:center;gap:9px;padding:9px 12px;border-bottom:1px solid var(--ink);font-size:13px;font-weight:800;letter-spacing:1px;text-transform:uppercase}
+  .dayline .dl-k{font-size:8px;letter-spacing:2px;opacity:.5;font-weight:700}
   .carbadge{position:absolute;bottom:9px;left:9px;z-index:3;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#fff;background:rgba(0,0,0,.5);border:1px solid rgba(255,255,255,.4);padding:3px 7px}
   .strip{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch}
   .strip::-webkit-scrollbar{height:5px}
@@ -289,8 +291,10 @@ function cardHTML(p, agency){
           <select data-eday>${weekDays(e.day).map(d=>`<option${d===baseDay(e.day)?' selected':''}>${d}</option>`).join('')}</select>
           <button class="agbtn" data-ehide>${e.hidden?'Unhide':'Hide'}</button>
         </div>
-        <label class="agbtn wide agup">↻ Update thumbnail from Canva<input type="file" accept="image/*" multiple data-ethumb hidden></label>
-        <div class="agnote">Export from Canva (Share → Download → PNG), then pick the file(s) here — 1 image updates the cover, or select all slides to replace the carousel. Live for everyone. <span class="agsaved" data-ethumbmsg></span></div>
+        <button class="agbtn wide" data-eauto>↻ Refresh thumbnail from Canva (auto)</button>
+        <div class="agnote">Edited this post's design in Canva? Just click — it re-pulls the latest and refreshes the preview automatically within a few minutes. No download needed. <span class="agsaved" data-eautomsg></span></div>
+        <label class="agbtn wide agup" style="font-size:8.5px;opacity:.8">or upload PNG(s) manually<input type="file" accept="image/*" multiple data-ethumb hidden></label>
+        <div class="agnote"><span class="agsaved" data-ethumbmsg></span></div>
         <textarea class="agcap" data-ecap>${esc(e.caption)}</textarea>
         <button class="agbtn wide" data-esave>Save caption</button><span class="agsaved" data-esaved></span>
       </div>` : '';
@@ -302,7 +306,8 @@ function cardHTML(p, agency){
   const opts = STATUSES.map(s=>`<option value="${s}"${s===st?' selected':''}>${s}</option>`).join('');
   return `<div class="card${e.hidden?' ishidden':''}" data-id="${p.id}">
       <div class="media"><span class="src">${p.src}</span><span class="day">${esc(baseDay(e.day))}</span>${e.hidden?'<span class="hidebadge">Hidden</span>':''}${media}</div>
-      <div class="cap"><div class="pil">${esc(p.pillar)} · ${esc(e.day)}</div>${esc(p.title)}</div>
+      <div class="dayline"><span class="dl-k">Posting</span> ${esc(e.day)}</div>
+      <div class="cap"><div class="pil">${esc(p.pillar)}</div>${esc(p.title)}</div>
       <div class="capx">${esc(e.caption)}<span class="tags">${esc(p.tags)}</span></div>
       ${dl}${agedit}
       <div class="track">Status
@@ -372,6 +377,16 @@ function wire(){
     if(ehide) ehide.addEventListener('click', async ()=>{ const cur=!!(editsMap[id]&&editsMap[id].hidden); await saveEdit(id,{hidden:!cur}); render(); });
     const esave = card.querySelector('[data-esave]'), ecap = card.querySelector('[data-ecap]'), esaved = card.querySelector('[data-esaved]');
     if(esave) esave.addEventListener('click', async ()=>{ esave.disabled=true; await saveEdit(id,{caption:ecap.value}); esave.disabled=false; if(esaved){ esaved.textContent='saved ✓'; setTimeout(()=>{esaved.textContent='';},2000); } });
+    const eauto = card.querySelector('[data-eauto]'), eautomsg = card.querySelector('[data-eautomsg]');
+    if(eauto) eauto.addEventListener('click', async ()=>{
+      if(!configured){ if(eautomsg) eautomsg.textContent='not configured'; return; }
+      const p0=POSTS.find(x=>x.id===id); const mm=((p0&&p0.canva)||'').match(/design\/([^/?]+)/); const design=mm?mm[1]:null;
+      if(!design){ if(eautomsg) eautomsg.textContent='no Canva design linked'; return; }
+      eauto.disabled=true; if(eautomsg) eautomsg.textContent='queuing…';
+      const {error}=await sb.from('prc_refresh').insert({post_id:id, design_id:design, requested_by:reviewer, status:'pending'});
+      eauto.disabled=false;
+      if(eautomsg) eautomsg.textContent = error ? ('failed — '+error.message) : 'queued ✓ — refreshing within a few minutes';
+    });
     const ethumb = card.querySelector('[data-ethumb]'), ethumbmsg = card.querySelector('[data-ethumbmsg]');
     if(ethumb) ethumb.addEventListener('change', async e=>{
       const files=[...e.target.files]; if(!files.length) return;
