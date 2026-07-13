@@ -87,6 +87,8 @@
   .agnote{font-size:9px;line-height:1.5;opacity:.6;margin:0 0 10px}
   .ebtn{font:inherit;font-size:9px;font-weight:700;letter-spacing:1px;text-transform:uppercase;border:1px solid var(--ink);background:var(--ink);color:var(--paper);padding:6px 10px;cursor:pointer;white-space:nowrap}
   .ebtn:hover{opacity:.85}
+  .ebtn.alt{background:var(--paper);color:var(--ink)}
+  .ebtn.alt:hover{background:var(--ink);color:var(--paper);opacity:1}
   .card.ishidden{opacity:.55}
   .hidebadge{position:absolute;bottom:9px;right:9px;z-index:3;font-size:9px;letter-spacing:1px;text-transform:uppercase;color:#fff;background:var(--red);border:1px solid rgba(255,255,255,.4);padding:3px 7px}
   footer{max-width:1180px;margin:0 auto;padding:0 28px 60px;font-size:10px;opacity:.5}
@@ -139,6 +141,7 @@
   </div>
   <div class="rgt">
     <button class="ebtn" id="emailBtn" style="display:none">✉ Email client — posts ready</button>
+    <button class="ebtn alt" id="remindBtn" style="display:none">⏰ Remind client</button>
     <span class="who2" id="who2"></span>
     <span class="prog" id="prog">—</span>
   </div>
@@ -465,10 +468,24 @@ async function emailClientReady(){
     alert('Could not send: '+(e.message||e));
   }
 }
+async function remindClient(){
+  if(!configured){ alert('Email backend not configured.'); return; }
+  const week = ((document.querySelector('.brand h1')||{}).textContent || 'this week').trim();
+  if(!confirm('Send a review reminder to the client now?')) return;
+  const rb=document.getElementById('remindBtn'); const orig=rb?rb.textContent:'';
+  if(rb){ rb.disabled=true; rb.textContent='Sending…'; }
+  try{
+    const { data, error } = await sb.rpc('remind_client',{ p_week: week });
+    if(error) throw error;
+    if(data && data.error) throw new Error(data.error);
+    if(rb){ rb.textContent='✓ Reminder sent'; setTimeout(()=>{ rb.textContent=orig; rb.disabled=false; },4000); }
+  }catch(e){ if(rb){ rb.textContent=orig; rb.disabled=false; } alert('Could not send: '+(e.message||e)); }
+}
 async function startApp(){
   document.getElementById('who2').innerHTML = esc(reviewer)+' · <a id="signout">sign out</a>';
   const so=document.getElementById('signout'); if(so) so.onclick=()=>{ localStorage.removeItem('prc_email'); location.reload(); };
   const eb=document.getElementById('emailBtn'); if(eb && isAgency()){ eb.style.display=''; eb.onclick=emailClientReady; }
+  const rb=document.getElementById('remindBtn'); if(rb && isAgency()){ rb.style.display=''; rb.onclick=remindClient; }
   if(configured && reviewer){ try{ sb.from('prc_logins').insert({email:reviewer, ua:(navigator.userAgent||'').slice(0,180)}); }catch(e){} }
   if(!configured){
     document.getElementById('banner').style.display='block';
