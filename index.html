@@ -473,11 +473,25 @@ function markSync(){ document.getElementById('sync').textContent = configured ? 
 async function emailClientReady(){
   if(!configured){ alert('Email backend not configured.'); return; }
   const week = ((document.querySelector('.brand h1')||{}).textContent || 'this week').trim();
-  if(!confirm('Send the branded review email to the client now?')) return;
+  const recip='george.digwa@prcdirect.co.uk';
+  const note = prompt('Add a note for the client (optional).\nIt appears in the email under the intro. Leave blank for none:', '');
+  if(note===null) return; // cancelled
+  const n=(note||'').trim();
+  const summary='Double-check before sending:\n\n'
+    +'• To:    '+recip+'\n'
+    +'• From:  paramveer@opulentcreatives.io\n'
+    +'• Week:  '+week+'\n'
+    +'• Note:  '+(n? '"'+n+'"' : '(none)')+'\n\n'
+    +'Send this branded review email now?';
+  if(!confirm(summary)) return;
   const eb=document.getElementById('emailBtn'); const orig=eb?eb.textContent:'';
   if(eb){ eb.disabled=true; eb.textContent='Sending…'; }
   try{
-    const { data, error } = await sb.rpc('send_review_email',{ p_week: week });
+    let resp = await sb.rpc('send_review_email',{ p_week: week, p_note: n });
+    if(resp.error && /p_note|function|schema cache|argument|does not exist/i.test(resp.error.message||'')){
+      resp = await sb.rpc('send_review_email',{ p_week: week }); // fallback until backend accepts the note
+    }
+    const { data, error } = resp;
     if(error) throw error;
     if(data && data.error) throw new Error(data.error);
     if(eb){ eb.textContent='✓ Sent to client'; setTimeout(()=>{ eb.textContent=orig; eb.disabled=false; },4000); }
